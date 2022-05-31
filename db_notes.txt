@@ -78,4 +78,33 @@ Isolation levels and Read phenomena
 
         Serializable: Tx running in this level are guaranteed to obtain same result if executed sequentially
 
+
+
+Github actions -> CI/CD platform
+
+    Define a workflow which is an automated procedure made up of 1+ jobs, triggered by events, scheduled or manually
+
+    Create workflow with yml field
+
+    Runner is a server that runs a job, can only run 1 job at a time, can use github hosted or self hosted. Runners will report progress, logs and result to github
+
+    Job is a set of steps to execute on the same runner. Normal jobs run in parallel, unless they are dependent on some others, in which case they run serially
+
+    Step is an individual task that runs serially inside a job. A step can contain 1+ actions, which are standalone commands run serially. 
+    (Actions can be reused, from previously created actions)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                     
