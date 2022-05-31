@@ -1,0 +1,81 @@
+Standard library
++We can use low level code for SQL/DB, it will be fast and straightforward 
+-but we will have to map SQL field to variables and it is easy to make mistakes that wont be caught until runtime
+
+GORM  - golang object relation mapping
++CRUD operations already implemented, production code is short we only need to provide the models
+-good but we need to know the functions that do what we want, which can be sometimes difficult when we want complex queries
+-runs slowly when traffic is high
+
+SQLX is a middle way 
++Nearly as fast as standard library, easy to use
++Field mappings via query text and struct tags
+-Failure wont occur until runtime
+
+SQLC
++very fast and easyAutomatic code generation
++catch SQL query errors before generating code
+-only for postgres, mysql experimental
+
+
+
+
+DEADLOCKING
+
+Note that in the update Tx example you had for example the case where Tx1 was inserting into transfers table, and Tx2 went ahead and got blocked in the select
+waiting for Tx1 to unblock, even though they were on different tables!
+    -- This is because of the forein key in the transfers database, which means that any update on the accounts table will affect the transfers table
+    -- This eventually leads to a deadlock, as Tx2 keeps waiting for the lock and Tx1 will progress through the transaction until it hits the get accounts 
+        and it will enter deadlock
+
+To avoid this we can change the select for update query to "for no key update" which will tell postgres that the update will not affect the primary key id
+which in turns makes it not acquire the lock for the foreign keys to the account id
+
+
+
+ACID
+
+Each transaction must abide by the ACID properties
+
+    Atomicity: Either all operations complete successfully or transaction fails and DB is unchanged
+
+    Consistency: DB state must be valid after the transaction, all constraints must be satisfied
+
+    Isolation: Concurrent transactions must not affect each other
+
+    Durability: Data written by a successfull Tx must be recorded in persistent storage
+
+
+
+
+Isolation levels and Read phenomena
+
+
+    At highest level, in perfect isolation, all Concurrent Txs will not affect each other 
+
+    -- Read phenomenon are cases where Concurrent Txs affect each other in lower isolation levels:
+        
+        Dirty read: A Tx reads data written by a concurrent uncommitted Tx (bad bc we dont know whether the other Tx will be commited or not)
+
+
+        Non repeatable read: A Tx reads the same row twice and sees different value because it has been modified by 
+                            another commited Tx
+
+        Phantom read: Similar to NNR, but affects multiple rows. So a Tx re-executes query to find rows that satisfy a condition and sees   
+                        a different set of rows, due to changes by another commited Tx
+
+        Serialization anomaly: The result of a group of conccurent commited transactions is impossible to achieve if we try to run them sequentially
+                                 in any order without overlapping
+ 
+
+    -- 4 Standard isolation levels:
+
+        Read uncommitted:  Can see data written by uncommitted Tx (allows dirty read)
+
+        Read commited: Only see data written by commited transaction (dirty read impossible)
+
+        Repeatable read: Same read query will always return same result
+
+        Serializable: Tx running in this level are guaranteed to obtain same result if executed sequentially
+
+                    

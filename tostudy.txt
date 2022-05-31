@@ -1,0 +1,3 @@
+DB migrations
+
+Object relational mapping -> what is it, GORM
